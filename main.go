@@ -77,6 +77,8 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 
+		log.Printf("This is the signature: %s\n", r.Header.Get("x-nylas-signature"))
+
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("Error reading body: %v", err)
