@@ -118,10 +118,7 @@ func main() {
 	http.HandleFunc("/health", healthCheck)
 	http.Handle("/metrics", promhttp.Handler())
 
-	serverAddr := ":" + port
-	log.Printf("Server starting on port %s...", port)
-
-	if err := http.ListenAndServe(serverAddr, nil); err != nil {
+	if err := http.ListenAndServe("0.0.0.0:3000", nil); err != nil {
 		log.Fatal(err)
 	}
 
