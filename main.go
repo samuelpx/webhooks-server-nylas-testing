@@ -15,9 +15,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// CONSTANTS
-
-const PORT = 3000
 
 // METRICS VARS
 
@@ -118,7 +115,9 @@ func main() {
 	http.HandleFunc("/health", healthCheck)
 	http.Handle("/metrics", promhttp.Handler())
 
-	if err := http.ListenAndServe("0.0.0.0:3000", nil); err != nil {
+
+	log.Printf("Starting server on port %s", port)
+	if err := http.ListenAndServe("0.0.0.0:"+port, nil); err != nil {
 		log.Fatal(err)
 	}
 
