@@ -8,11 +8,12 @@ Perfect for testing Nylas webhook integrations or any webhook-based service duri
 
 ### Option 1: Automatic Deploy (Recommended)
 ```bash
-# Clone this repo
-git clone <this-repo>
+# Fork this repo first (click the Fork button on GitHub)
+# Then clone YOUR fork
+git clone https://github.com/YOUR-USERNAME/webhook-server
 cd webhook-server
 
-# One-command deploy
+# Deploy to Fly.io
 ./deploy-auto.sh
 ```
 
