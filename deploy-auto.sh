@@ -23,6 +23,9 @@ fi
 
 echo ""
 
+NEEDS_APP_CREATION=false
+APP_NAME=""
+
 # Check if fly.toml already exists
 if [ -f "fly.toml" ]; then
     # Extract the current app name from fly.toml
@@ -60,12 +63,14 @@ if [ -f "fly.toml" ]; then
             fi
             
             echo "✅ Updated fly.toml with app name: $APP_NAME"
+            NEEDS_APP_CREATION=true
             ;;
             
         2)
             # Keep existing name
             APP_NAME=$CURRENT_APP
             echo "✅ Keeping existing app name: $APP_NAME"
+            NEEDS_APP_CREATION=false
             ;;
             
         3)
@@ -73,6 +78,7 @@ if [ -f "fly.toml" ]; then
             echo "🗑️  Removing fly.toml to let Fly.io auto-generate configuration..."
             rm fly.toml
             APP_NAME="auto-generated"
+            NEEDS_APP_CREATION=true
             ;;
             
         *)
@@ -99,10 +105,12 @@ else
                 echo "❌ Invalid app name. Use only lowercase letters, numbers, and hyphens."
                 exit 1
             fi
+            NEEDS_APP_CREATION=true
             ;;
             
         2)
             APP_NAME="auto-generated"
+            NEEDS_APP_CREATION=true
             ;;
             
         *)
@@ -116,11 +124,19 @@ echo ""
 echo "🚀 Deploying webhook server..."
 
 # Deploy based on the configuration
-if [ -f "fly.toml" ]; then
-    # fly.toml exists (either original or modified)
+if [ -f "fly.toml" ] && [ "$NEEDS_APP_CREATION" = false ]; then
+    # fly.toml exists and we're keeping the existing app - just deploy
+    echo "📦 Deploying to existing app: $APP_NAME"
+    flyctl deploy
+elif [ -f "fly.toml" ] && [ "$NEEDS_APP_CREATION" = true ]; then
+    # fly.toml exists but we need to create a new app with the updated name
+    echo "🆕 Creating new app: $APP_NAME"
+    flyctl apps create "$APP_NAME"
+    echo "📦 Deploying to new app: $APP_NAME"
     flyctl deploy
 else
     # No fly.toml - let flyctl launch create everything
+    echo "🆕 Creating new app and configuration"
     if [ "$APP_NAME" == "auto-generated" ]; then
         flyctl launch --no-deploy
     else
@@ -128,6 +144,7 @@ else
     fi
     
     # Now deploy
+    echo "📦 Deploying new app"
     flyctl deploy
 fi
 
